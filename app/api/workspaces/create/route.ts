@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { getCurrentUser } from "@/lib/auth";
-import { canCreateWorkspace } from "@/services/stripe/stripeService";
-import { generateWorkspace } from "@/services/workspaces/workspace.service";
 
 const requestSchema = z.object({
   clientName: z.string().min(1, "Client name is required."),
@@ -24,6 +22,11 @@ export async function POST(request: Request) {
       },
     );
   }
+
+  const [{ canCreateWorkspace }, { generateWorkspace }] = await Promise.all([
+    import("@/services/stripe/stripeService"),
+    import("@/services/workspaces/workspace.service"),
+  ]);
 
   const access = await canCreateWorkspace(user.id);
 

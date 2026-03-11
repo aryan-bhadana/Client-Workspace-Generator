@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { getCurrentUser } from "@/lib/auth";
-import { createCheckoutSession } from "@/services/stripe/stripeService";
 
 const requestSchema = z.object({
   priceId: z.string().min(1, "Price id is required."),
@@ -51,6 +50,9 @@ export async function POST(request: Request) {
   }
 
   try {
+    const { createCheckoutSession } = await import(
+      "@/services/stripe/stripeService"
+    );
     const session = await createCheckoutSession(user.id, parsed.data.priceId);
 
     return NextResponse.json({

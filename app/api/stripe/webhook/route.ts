@@ -3,13 +3,6 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 
 import { getStripeEnv } from "@/lib/env";
-import {
-  stripe,
-  syncCheckoutCompleted,
-  syncInvoicePaid,
-  syncSubscriptionDeleted,
-  syncSubscriptionUpdated,
-} from "@/services/stripe/stripeService";
 
 const stripeEnv = getStripeEnv();
 
@@ -32,6 +25,7 @@ export async function POST(request: Request) {
   let event: Stripe.Event;
 
   try {
+    const { stripe } = await import("@/services/stripe/stripeService");
     event = stripe.webhooks.constructEvent(
         body,
         signature,
@@ -55,6 +49,13 @@ export async function POST(request: Request) {
     case "customer.subscription.updated":
     case "customer.subscription.deleted":
       try {
+        const {
+          syncCheckoutCompleted,
+          syncInvoicePaid,
+          syncSubscriptionDeleted,
+          syncSubscriptionUpdated,
+        } = await import("@/services/stripe/stripeService");
+
         console.info("[stripe] webhook received", {
           eventId: event.id,
           eventType: event.type,
