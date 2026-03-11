@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
-import { isGoogleDriveConnected } from "@/lib/repositories/integrationRepository";
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -17,6 +16,9 @@ export async function GET() {
     );
   }
 
+  const { isGoogleDriveConnected } = await import(
+    "@/lib/repositories/integrationRepository"
+  );
   const connected = await isGoogleDriveConnected(user.id);
 
   return NextResponse.json({

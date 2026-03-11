@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
-import { createGoogleOAuthUrl } from "@/services/googleDrive/googleDriveService";
 
 export async function GET(request: Request) {
   const user = await getCurrentUser();
@@ -9,6 +8,10 @@ export async function GET(request: Request) {
   if (!user) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
+
+  const { createGoogleOAuthUrl } = await import(
+    "@/services/googleDrive/googleDriveService"
+  );
 
   return NextResponse.redirect(createGoogleOAuthUrl());
 }

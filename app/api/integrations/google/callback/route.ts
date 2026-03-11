@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
-import { saveGoogleTokens } from "@/lib/repositories/integrationRepository";
-import { exchangeGoogleCodeForTokens } from "@/services/googleDrive/googleDriveService";
 
 export async function GET(request: Request) {
   const user = await getCurrentUser();
@@ -28,6 +26,11 @@ export async function GET(request: Request) {
   }
 
   try {
+    const [{ saveGoogleTokens }, { exchangeGoogleCodeForTokens }] =
+      await Promise.all([
+        import("@/lib/repositories/integrationRepository"),
+        import("@/services/googleDrive/googleDriveService"),
+      ]);
     const tokens = await exchangeGoogleCodeForTokens(code);
 
     if (!tokens.accessToken && !tokens.refreshToken) {

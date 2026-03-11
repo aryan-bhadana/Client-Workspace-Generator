@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
-import { saveNotionToken } from "@/lib/repositories/integrationRepository";
-import { exchangeNotionCodeForToken } from "@/services/notion/notionService";
 
 export async function GET(request: Request) {
   const user = await getCurrentUser();
@@ -28,6 +26,11 @@ export async function GET(request: Request) {
   }
 
   try {
+    const [{ saveNotionToken }, { exchangeNotionCodeForToken }] =
+      await Promise.all([
+        import("@/lib/repositories/integrationRepository"),
+        import("@/services/notion/notionService"),
+      ]);
     const accessToken = await exchangeNotionCodeForToken(code);
 
     await saveNotionToken({
