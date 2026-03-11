@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String        @id
+  email              String
+  stripeCustomerId   String?       @unique
+  subscriptionStatus String?
+  subscriptionPlan   String?
+  createdAt          DateTime      @default(now())
+  integration        Integration?
+  templates          Template[]
+  workspaces         Workspace[]
+}
+
+model Integration {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  googleAccessToken  String?
+  googleRefreshToken String?
+  notionAccessToken  String?
+  createdAt          DateTime @default(now())
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Template {
+  id               String   @id @default(uuid())
+  userId           String
+  folderStructure  Json
+  notionTemplateId String?
+  createdAt        DateTime @default(now())
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Workspace {
+  id             String   @id @default(uuid())
+  userId         String
+  clientName     String
+  projectName    String
+  driveFolderUrl String?
+  notionPageUrl  String?
+  status         String
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
