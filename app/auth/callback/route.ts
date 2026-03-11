@@ -1,14 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { createRouteHandlerClient } from "@/lib/supabase/server";
+import { createRouteHandlerSupabaseClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
   const next = requestUrl.searchParams.get("next") ?? "/dashboard";
+  const response = NextResponse.redirect(new URL(next, request.url));
 
   if (code) {
-    const supabase = await createRouteHandlerClient();
+    const supabase = createRouteHandlerSupabaseClient(request, response);
     const { data } = await supabase.auth.exchangeCodeForSession(code);
 
     if (data.user) {
@@ -17,5 +18,5 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(new URL(next, request.url));
+  return response;
 }
