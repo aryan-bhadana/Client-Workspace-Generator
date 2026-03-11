@@ -6,7 +6,9 @@ export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
   const next = requestUrl.searchParams.get("next") ?? "/dashboard";
-  const response = NextResponse.redirect(new URL(next, request.url));
+  const response = NextResponse.redirect(new URL(next, request.url), {
+    status: 303,
+  });
 
   if (code) {
     const supabase = createRouteHandlerSupabaseClient(request, response);
