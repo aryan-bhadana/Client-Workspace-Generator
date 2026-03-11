@@ -2,16 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { getCurrentUser } from "@/lib/auth";
-import {
-  getUserTemplate,
-  mapTemplateToConfig,
-  saveTemplate,
-} from "@/lib/repositories/templateRepository";
 import { toTemplateFolderStructure } from "@/lib/templates/folder-structure";
-import {
-  normalizeNotionPageId,
-  validateNotionTemplatePage,
-} from "@/services/notion/notionService";
 
 const requestSchema = z.object({
   folders: z.array(z.string().min(1)).default([]),
@@ -32,6 +23,9 @@ export async function GET() {
     );
   }
 
+  const { getUserTemplate, mapTemplateToConfig } = await import(
+    "@/lib/repositories/templateRepository"
+  );
   const template = await getUserTemplate(user.id);
   const config = mapTemplateToConfig(template);
 
@@ -88,6 +82,10 @@ export async function POST(request: Request) {
     .map((folder) => folder.trim())
     .filter((folder) => folder.length > 0);
   const notionTemplateId = parsed.data.notionTemplateId?.trim() || null;
+  const {
+    normalizeNotionPageId,
+    validateNotionTemplatePage,
+  } = await import("@/services/notion/notionService");
   const normalizedNotionTemplateId = notionTemplateId
     ? normalizeNotionPageId(notionTemplateId)
     : null;
@@ -115,6 +113,9 @@ export async function POST(request: Request) {
     }
   }
 
+  const { saveTemplate, mapTemplateToConfig } = await import(
+    "@/lib/repositories/templateRepository"
+  );
   const template = await saveTemplate({
     userId: user.id,
     folderStructure: toTemplateFolderStructure(folders),
