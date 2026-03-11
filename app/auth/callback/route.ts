@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { ensureUserExists } from "@/lib/db/users";
 import { createRouteHandlerClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
@@ -13,6 +12,7 @@ export async function GET(request: NextRequest) {
     const { data } = await supabase.auth.exchangeCodeForSession(code);
 
     if (data.user) {
+      const { ensureUserExists } = await import("@/lib/db/users");
       await ensureUserExists(data.user);
     }
   }
